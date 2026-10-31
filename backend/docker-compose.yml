@@ -1,0 +1,52 @@
+# Local test stack: gateway (public) -> api (internal) -> postgres (internal).
+# Only the gateway publishes a port. Run from this directory: `docker compose up --build`.
+name: camanime
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-camanime}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-camanime}
+      POSTGRES_DB: ${POSTGRES_DB:-camanime}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      target: runtime
+    environment:
+      API_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-camanime}:${POSTGRES_PASSWORD:-camanime}@db:5432/${POSTGRES_DB:-camanime}
+      API_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./gateway
+      target: runtime
+    environment:
+      GATEWAY_UPSTREAM_URL: http://api:8000
+      GATEWAY_API_KEY: ${GATEWAY_API_KEY:-}
+      GATEWAY_RATE_LIMIT_PER_MINUTE: ${GATEWAY_RATE_LIMIT_PER_MINUTE:-120}
+      GATEWAY_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    restart: unless-stopped
+
+volumes:
+  dbdata:
