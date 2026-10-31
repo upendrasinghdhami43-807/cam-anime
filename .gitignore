@@ -1,0 +1,58 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json.example
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.g.dart.bak
+# Generated code (build_runner / drift) is committed only if listed explicitly in docs/architecture/PROJECT_STRUCTURE.md
+
+# Android / Gradle
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/gradle-wrapper.jar
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+# Signing material and secrets: NEVER commit
+*.jks
+*.keystore
+**/android/key.properties
+.env
+.env.*
+*.pem
+*.p12
+
+# iOS (future)
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/ephemeral/
+**/ios/**/xcuserdata/
+DerivedData/
+
+# Benchmark / capture output (keep summaries in docs/performance, not raw captures)
+research/**/raw/
+*.perfetto-trace
+*.trace
+*.systrace
+
+# Local scratch
+tmp/
+*.log
